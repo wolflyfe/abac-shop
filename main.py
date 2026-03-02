@@ -14,7 +14,7 @@ from models import (
 )
 from database import init_db, get_db
 
-ADMIN_KEY = "abac2024"   # Change this to a strong secret
+ADMIN_KEY = "BerNard33"   # Change this to a strong secret
 STATIC_DIR = Path(__file__).parent / "static"
 FREE_SHIPPING_THRESHOLD = 75.0
 SHIPPING_RATE = 9.99
