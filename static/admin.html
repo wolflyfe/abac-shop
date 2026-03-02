@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — ABAC One Stop Custom Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+/* ─── Admin Overrides ──────────────────────────────────────────────── */
+body { background: #f4f5f7; }
+
+.admin-header {
+  background: #0a0a0a;
+  padding: 14px 0;
+  border-bottom: 3px solid #cc0000;
+  position: sticky; top: 0; z-index: 100;
+}
+.admin-header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1400px; margin: 0 auto; padding: 0 20px;
+}
+.admin-logo { color: #fff; font-weight: 900; font-size: 1.1rem; letter-spacing: 0.05em; text-decoration: none; }
+.admin-logo span { color: #cc0000; }
+.admin-nav { display: flex; gap: 6px; }
+.admin-nav a {
+  color: #ccc; padding: 7px 14px; border-radius: 6px; font-size: 0.85rem;
+  text-decoration: none; transition: all .15s;
+}
+.admin-nav a:hover, .admin-nav a.active { background: #cc0000; color: #fff; }
+.admin-nav a.logout-btn { border: 1px solid #444; color: #aaa; }
+.admin-nav a.logout-btn:hover { background: #333; color: #fff; }
+
+/* ─── Layout ─────────────────────────────────────────────────────────── */
+.admin-body { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;
+}
+.stat-box {
+  background: #fff; border-radius: 12px; padding: 22px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06); border-left: 4px solid #cc0000;
+}
+.stat-box .num { font-size: 2rem; font-weight: 900; color: #0a0a0a; }
+.stat-box .lbl { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
+
+/* ─── Tab Navigation ─────────────────────────────────────────────── */
+.tab-bar {
+  display: flex; gap: 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 24px;
+}
+.tab-btn {
+  padding: 12px 22px; border: none; background: none; cursor: pointer;
+  font-size: 0.92rem; font-weight: 600; color: #777; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: all .15s;
+}
+.tab-btn.active { color: #cc0000; border-bottom-color: #cc0000; }
+.tab-btn:hover:not(.active) { color: #333; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ─── Panel Cards ─────────────────────────────────────────────────── */
+.panel-card {
+  background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  padding: 24px; margin-bottom: 24px;
+}
+.panel-card h3 { margin: 0 0 18px; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+
+/* ─── Data Tables ─────────────────────────────────────────────────── */
+.dtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.dtable th {
+  background: #f4f5f7; padding: 10px 12px; text-align: left;
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #555;
+  border-bottom: 1px solid #e0e0e0;
+}
+.dtable td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.dtable tr:last-child td { border-bottom: none; }
+.dtable tr:hover td { background: #fafafa; }
+
+.thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; cursor: pointer; }
+.thumb-placeholder { width: 48px; height: 48px; background: #f0f0f0; border-radius: 6px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.thumb-pair { display: flex; gap: 6px; }
+
+.badge-active { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: #e6f9ee; color: #1a7a44; }
+.badge-inactive { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: #f5f5f5; color: #888; }
+.badge-featured { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: #fff4e0; color: #b85c00; }
+
+.act-btns { display: flex; gap: 6px; }
+.btn-edit { background: #0a0a0a; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 700; transition: background .15s; }
+.btn-edit:hover { background: #333; }
+.btn-del { background: #fff; color: #cc0000; border: 1.5px solid #cc0000; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 700; transition: all .15s; }
+.btn-del:hover { background: #cc0000; color: #fff; }
+.btn-tog { background: #f0f0f0; color: #555; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.78rem; font-weight: 700; transition: all .15s; }
+.btn-tog.on { background: #e6f9ee; color: #1a7a44; }
+.btn-tog:hover { opacity: 0.8; }
+
+/* ─── Add / Edit Forms ────────────────────────────────────────────── */
+.add-form-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px;
+}
+.add-form-grid .span2 { grid-column: span 2; }
+.add-form-grid .span3 { grid-column: span 3; }
+
+.fld { display: flex; flex-direction: column; gap: 5px; }
+.fld label { font-size: 0.78rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .03em; }
+.fld input, .fld select, .fld textarea {
+  padding: 9px 12px; border: 1.5px solid #e0e0e0; border-radius: 7px;
+  font-size: 0.88rem; outline: none; transition: border-color .15s; font-family: inherit;
+}
+.fld input:focus, .fld select:focus, .fld textarea:focus { border-color: #cc0000; }
+.fld textarea { resize: vertical; min-height: 70px; }
+.img-preview { width: 100%; height: 80px; object-fit: cover; border-radius: 7px; border: 1px solid #eee; margin-top: 6px; display: none; }
+
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+/* ─── Modal ──────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999; padding: 20px; display: none;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #fff; border-radius: 14px; width: 100%; max-width: 780px;
+  max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+.modal-header {
+  padding: 20px 24px; border-bottom: 1px solid #eee;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: #fff; z-index: 1;
+}
+.modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+.modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #888; line-height: 1; padding: 4px 8px; border-radius: 6px; }
+.modal-close:hover { background: #f0f0f0; color: #333; }
+.modal-body { padding: 24px; }
+
+/* ─── Image Section in Modal ─────────────────────────────────────── */
+.img-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.img-block { border: 1.5px dashed #e0e0e0; border-radius: 10px; padding: 14px; }
+.img-block h4 { margin: 0 0 10px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #888; }
+.img-block img { width: 100%; height: 160px; object-fit: cover; border-radius: 7px; display: none; margin-bottom: 8px; }
+.img-block input { width: 100%; padding: 8px 10px; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.82rem; outline: none; }
+.img-block input:focus { border-color: #cc0000; }
+.img-placeholder { width: 100%; height: 160px; background: #f7f7f7; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 2.5rem; margin-bottom: 8px; }
+
+/* ─── Orders ─────────────────────────────────────────────────────── */
+.status-pill {
+  display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+}
+.status-pending { background: #fff4e0; color: #b85c00; }
+.status-confirmed { background: #e0f0ff; color: #0066cc; }
+.status-in_production { background: #f0e0ff; color: #6600cc; }
+.status-shipped { background: #e0f9ee; color: #006633; }
+.status-delivered { background: #e6f9e6; color: #1a7a1a; }
+.status-cancelled { background: #ffe0e0; color: #cc0000; }
+.status-select { padding: 4px 8px; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.78rem; outline: none; cursor: pointer; }
+.status-select:focus { border-color: #cc0000; }
+
+/* ─── Category row ───────────────────────────────────────────────── */
+.cat-inline-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 18px; padding-top: 18px; border-top: 1px solid #f0f0f0; }
+.cat-inline-form .fld { min-width: 140px; }
+
+/* ─── Auth wall ──────────────────────────────────────────────────── */
+#auth-wall { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f4f5f7; }
+.auth-card { background: #fff; padding: 44px 40px; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,.1); text-align: center; width: 380px; }
+.auth-card .auth-logo { font-size: 1.5rem; font-weight: 900; color: #0a0a0a; margin-bottom: 6px; }
+.auth-card .auth-logo span { color: #cc0000; }
+.auth-card h2 { font-size: 1.1rem; margin: 0 0 6px; font-weight: 800; }
+.auth-card p { color: #999; font-size: 0.88rem; margin-bottom: 24px; }
+.auth-card input {
+  width: 100%; padding: 13px; border: 2px solid #e0e0e0; border-radius: 9px;
+  font-size: 1rem; margin-bottom: 14px; outline: none; box-sizing: border-box;
+  transition: border-color .15s;
+}
+.auth-card input:focus { border-color: #cc0000; }
+.auth-card .btn { width: 100%; padding: 13px; background: #cc0000; color: #fff; border: none; border-radius: 9px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .15s; }
+.auth-card .btn:hover { background: #a80000; }
+.auth-err { color: #cc0000; font-size: 0.85rem; margin-top: 8px; }
+
+/* ─── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .add-form-grid { grid-template-columns: 1fr 1fr; }
+  .add-form-grid .span3 { grid-column: span 2; }
+}
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .add-form-grid { grid-template-columns: 1fr; }
+  .add-form-grid .span2, .add-form-grid .span3 { grid-column: span 1; }
+  .img-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Wall -->
+<div id="auth-wall">
+  <div class="auth-card">
+    <div class="auth-logo">ABAC<span>■</span></div>
+    <h2>Admin Dashboard</h2>
+    <p>Enter your admin key to continue</p>
+    <input type="password" id="key-input" placeholder="Admin key" autocomplete="current-password">
+    <button class="btn" onclick="doLogin()">Login</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
+<!-- Admin Shell (hidden until logged in) -->
+<div id="admin-app" style="display:none;">
+
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <a href="/" class="admin-logo">ABAC <span>Admin</span></a>
+      <nav class="admin-nav">
+        <a href="/" target="_blank">← Store</a>
+        <a href="javascript:void(0)" onclick="switchTab('products')" class="active" id="nav-products">Products</a>
+        <a href="javascript:void(0)" onclick="switchTab('categories')" id="nav-categories">Categories</a>
+        <a href="javascript:void(0)" onclick="switchTab('orders')" id="nav-orders">Orders</a>
+        <a href="javascript:void(0)" onclick="logout()" class="logout-btn">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-body">
+
+    <!-- Stats Row -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-box"><div class="num">—</div><div class="lbl">Total Orders</div></div>
+      <div class="stat-box"><div class="num">—</div><div class="lbl">Revenue</div></div>
+      <div class="stat-box"><div class="num">—</div><div class="lbl">Active Products</div></div>
+      <div class="stat-box"><div class="num">—</div><div class="lbl">Pending Orders</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-products" onclick="switchTab('products')">🛍️ Products</button>
+      <button class="tab-btn" id="tab-categories" onclick="switchTab('categories')">📂 Categories</button>
+      <button class="tab-btn" id="tab-orders" onclick="switchTab('orders')">📋 Orders</button>
+    </div>
+
+    <!-- ── PRODUCTS TAB ───────────────────────────────────────────────── -->
+    <div class="tab-panel active" id="panel-products">
+
+      <div class="panel-card">
+        <h3>📦 All Products</h3>
+        <div style="overflow-x:auto" id="products-table"><div class="loading">Loading...</div></div>
+      </div>
+
+      <div class="panel-card">
+        <h3>➕ Add New Product</h3>
+        <div class="add-form-grid">
+          <div class="fld span2"><label>Product Name *</label><input type="text" id="p-name" placeholder="e.g. Custom Graphic T-Shirt"></div>
+          <div class="fld"><label>Price *</label><input type="number" id="p-price" placeholder="12.99" step="0.01" min="0"></div>
+          <div class="fld span3"><label>Description</label><textarea id="p-desc" placeholder="Short product description..."></textarea></div>
+          <div class="fld"><label>Category *</label><select id="p-cat"><option value="">Select category...</option></select></div>
+          <div class="fld"><label>Min. Quantity</label><input type="number" id="p-minqty" value="1" min="1"></div>
+          <div class="fld"><label>Featured</label>
+            <select id="p-featured"><option value="0">No</option><option value="1">Yes — show on homepage</option></select>
+          </div>
+          <div class="fld span3"><label>Sizes (comma-separated)</label><input type="text" id="p-sizes" placeholder="XS, S, M, L, XL, 2XL, 3XL"></div>
+          <div class="fld span3"><label>Colors (comma-separated)</label><input type="text" id="p-colors" placeholder="Black, White, Red, Navy, Royal Blue"></div>
+        </div>
+        <div class="img-row" style="margin-top:16px;">
+          <div class="img-block">
+            <h4>Front Image URL</h4>
+            <div class="img-placeholder" id="add-front-ph">📸</div>
+            <img id="add-front-prev" alt="Front preview">
+            <input type="text" id="p-img" placeholder="https://images.unsplash.com/..." oninput="previewImg('p-img','add-front-prev','add-front-ph')">
+          </div>
+          <div class="img-block">
+            <h4>Back Image URL</h4>
+            <div class="img-placeholder" id="add-back-ph">📸</div>
+            <img id="add-back-prev" alt="Back preview">
+            <input type="text" id="p-backimg" placeholder="https://images.unsplash.com/..." oninput="previewImg('p-backimg','add-back-prev','add-back-ph')">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="addProduct()">Add Product</button>
+          <button class="btn btn-outline" onclick="clearAddForm()">Clear</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── CATEGORIES TAB ────────────────────────────────────────────── -->
+    <div class="tab-panel" id="panel-categories">
+
+      <div class="panel-card">
+        <h3>📂 All Categories</h3>
+        <div id="categories-table"><div class="loading">Loading...</div></div>
+
+        <div class="cat-inline-form">
+          <div class="fld"><label>Icon Emoji</label><input type="text" id="c-icon" placeholder="👕" style="width:80px;"></div>
+          <div class="fld"><label>Category Name *</label><input type="text" id="c-name" placeholder="e.g. Activewear"></div>
+          <div class="fld" style="flex:1;"><label>Description</label><input type="text" id="c-desc" placeholder="Short description..."></div>
+          <div class="fld" style="justify-content:flex-end;">
+            <button class="btn btn-primary" onclick="addCategory()">Add Category</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── ORDERS TAB ────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="panel-orders">
+
+      <div class="panel-card">
+        <h3>📋 Orders</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+          <button class="btn btn-sm btn-outline" onclick="loadOrders('')">All</button>
+          <button class="btn btn-sm btn-outline" onclick="loadOrders('pending')">Pending</button>
+          <button class="btn btn-sm btn-outline" onclick="loadOrders('confirmed')">Confirmed</button>
+          <button class="btn btn-sm btn-outline" onclick="loadOrders('in_production')">In Production</button>
+          <button class="btn btn-sm btn-outline" onclick="loadOrders('shipped')">Shipped</button>
+          <button class="btn btn-sm btn-outline" onclick="loadOrders('delivered')">Delivered</button>
+        </div>
+        <div style="overflow-x:auto" id="orders-table"><div class="loading">Loading...</div></div>
+      </div>
+
+    </div>
+
+  </div><!-- /admin-body -->
+</div><!-- /admin-app -->
+
+<!-- ── EDIT PRODUCT MODAL ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Edit Product</h3>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="img-row">
+        <div class="img-block">
+          <h4>Front Image URL</h4>
+          <div class="img-placeholder" id="edit-front-ph">📸</div>
+          <img id="edit-front-prev" alt="Front">
+          <input type="text" id="e-img" placeholder="https://..." oninput="previewImg('e-img','edit-front-prev','edit-front-ph')">
+        </div>
+        <div class="img-block">
+          <h4>Back Image URL</h4>
+          <div class="img-placeholder" id="edit-back-ph">📸</div>
+          <img id="edit-back-prev" alt="Back">
+          <input type="text" id="e-backimg" placeholder="https://..." oninput="previewImg('e-backimg','edit-back-prev','edit-back-ph')">
+        </div>
+      </div>
+
+      <div class="add-form-grid">
+        <input type="hidden" id="e-id">
+        <div class="fld span2"><label>Product Name *</label><input type="text" id="e-name"></div>
+        <div class="fld"><label>Price *</label><input type="number" id="e-price" step="0.01" min="0"></div>
+        <div class="fld span3"><label>Description</label><textarea id="e-desc"></textarea></div>
+        <div class="fld"><label>Category</label><select id="e-cat"></select></div>
+        <div class="fld"><label>Min. Quantity</label><input type="number" id="e-minqty" min="1"></div>
+        <div class="fld"><label>Featured</label>
+          <select id="e-featured"><option value="0">No</option><option value="1">Yes</option></select>
+        </div>
+        <div class="fld"><label>Status</label>
+          <select id="e-active"><option value="1">Active</option><option value="0">Hidden</option></select>
+        </div>
+        <div class="fld span2"><label>Sizes (comma-separated)</label><input type="text" id="e-sizes"></div>
+        <div class="fld span3"><label>Colors (comma-separated)</label><input type="text" id="e-colors"></div>
+      </div>
+
+      <div class="form-actions" style="margin-top:24px; padding-top:20px; border-top:1px solid #f0f0f0;">
+        <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+        <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+let ADMIN_KEY = '';
+let allCats = [];
+let currentTab = 'products';
+
+// ── Auth ─────────────────────────────────────────────────────────────
+async function doLogin() {
+  const key = document.getElementById('key-input').value.trim();
+  if (!key) return;
+  try {
+    await apiGet('/api/stats', key);
+    ADMIN_KEY = key;
+    sessionStorage.setItem('abac_admin', key);
+    document.getElementById('auth-wall').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    loadAll();
+  } catch(e) {
+    document.getElementById('auth-err').textContent = 'Invalid admin key.';
+  }
+}
+
+document.getElementById('key-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  sessionStorage.removeItem('abac_admin');
+  ADMIN_KEY = '';
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('auth-wall').style.display = 'flex';
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+function switchTab(name) {
+  currentTab = name;
+  ['products','categories','orders'].forEach(t => {
+    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    const navEl = document.getElementById('nav-' + t);
+    if (navEl) navEl.classList.toggle('active', t === name);
+  });
+  if (name === 'orders') loadOrders('');
+}
+
+// ── Load All ──────────────────────────────────────────────────────────
+async function loadAll() {
+  loadStats();
+  loadProducts();
+  loadCategories();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const s = await apiGet('/api/stats', ADMIN_KEY);
+    document.getElementById('stats-row').innerHTML = `
+      <div class="stat-box"><div class="num">${s.total_orders}</div><div class="lbl">Total Orders</div></div>
+      <div class="stat-box"><div class="num">${formatPrice(s.total_revenue)}</div><div class="lbl">Revenue</div></div>
+      <div class="stat-box"><div class="num">${s.total_products}</div><div class="lbl">Active Products</div></div>
+      <div class="stat-box"><div class="num">${s.pending_orders}</div><div class="lbl">Pending Orders</div></div>
+    `;
+  } catch(e) {}
+}
+
+// ── Products ──────────────────────────────────────────────────────────
+async function loadProducts() {
+  try {
+    const products = await apiGet('/api/products/all', ADMIN_KEY);
+    const div = document.getElementById('products-table');
+    if (!products.length) { div.innerHTML = '<p style="color:#888;padding:20px 0;">No products yet.</p>'; return; }
+
+    div.innerHTML = `<table class="dtable">
+      <thead><tr>
+        <th>ID</th><th>Images</th><th>Name</th><th>Category</th>
+        <th>Price</th><th>Min</th><th>Featured</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${products.map(p => {
+        const frontSrc = p.image_url || '';
+        const backSrc = p.back_image_url || '';
+        return `<tr>
+          <td style="color:#aaa;font-size:0.8rem">#${p.id}</td>
+          <td>
+            <div class="thumb-pair">
+              ${frontSrc ? `<img class="thumb" src="${frontSrc}" title="Front" onclick="openEditModal(${p.id})" alt="F">` : `<div class="thumb-placeholder" title="No front image" onclick="openEditModal(${p.id})">📷</div>`}
+              ${backSrc ? `<img class="thumb" src="${backSrc}" title="Back" onclick="openEditModal(${p.id})" alt="B">` : `<div class="thumb-placeholder" title="No back image" onclick="openEditModal(${p.id})">↩️</div>`}
+            </div>
+          </td>
+          <td><strong>${p.name}</strong><br><span style="color:#aaa;font-size:0.78rem">${(p.description||'').slice(0,50)}</span></td>
+          <td>${p.category_name || '—'}</td>
+          <td><strong>${formatPrice(p.price)}</strong></td>
+          <td>${p.min_quantity}</td>
+          <td><button class="btn-tog ${p.featured?'on':''}" onclick="toggleProduct(${p.id},'featured',${!p.featured})">${p.featured?'★ Yes':'☆ No'}</button></td>
+          <td><button class="btn-tog ${p.active?'on':''}" onclick="toggleProduct(${p.id},'active',${!p.active})">${p.active?'Active':'Hidden'}</button></td>
+          <td>
+            <div class="act-btns">
+              <button class="btn-edit" onclick="openEditModal(${p.id})">Edit</button>
+              <button class="btn-del" onclick="deleteProduct(${p.id},'${p.name.replace(/'/g,"\\'")}')">Del</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) { document.getElementById('products-table').innerHTML = '<p style="color:red;padding:20px 0;">Error loading products.</p>'; }
+}
+
+// ── Image Preview ──────────────────────────────────────────────────────
+function previewImg(inputId, imgId, phId) {
+  const url = document.getElementById(inputId).value.trim();
+  const img = document.getElementById(imgId);
+  const ph = document.getElementById(phId);
+  if (url) {
+    img.src = url;
+    img.style.display = 'block';
+    img.onerror = () => { img.style.display='none'; ph.style.display='flex'; };
+    img.onload = () => { ph.style.display='none'; };
+  } else {
+    img.style.display = 'none';
+    ph.style.display = 'flex';
+  }
+}
+
+// ── Edit Modal ────────────────────────────────────────────────────────
+let _editProducts = [];
+
+async function openEditModal(productId) {
+  try {
+    const p = await apiGet(`/api/products/${productId}`);
+    document.getElementById('edit-modal').classList.add('open');
+    document.getElementById('e-id').value = p.id;
+    document.getElementById('e-name').value = p.name;
+    document.getElementById('e-desc').value = p.description || '';
+    document.getElementById('e-price').value = p.price;
+    document.getElementById('e-minqty').value = p.min_quantity || 1;
+    document.getElementById('e-featured').value = p.featured ? '1' : '0';
+    document.getElementById('e-active').value = p.active ? '1' : '0';
+    document.getElementById('e-sizes').value = (p.sizes || []).join(', ');
+    document.getElementById('e-colors').value = (p.colors || []).join(', ');
+    document.getElementById('e-img').value = p.image_url || '';
+    document.getElementById('e-backimg').value = p.back_image_url || '';
+
+    // Category dropdown
+    document.getElementById('e-cat').innerHTML = allCats.map(c =>
+      `<option value="${c.id}" ${c.id === p.category_id ? 'selected' : ''}>${c.icon} ${c.name}</option>`
+    ).join('');
+
+    // Previews
+    previewImg('e-img', 'edit-front-prev', 'edit-front-ph');
+    previewImg('e-backimg', 'edit-back-prev', 'edit-back-ph');
+  } catch(e) { showToast('Error loading product: ' + e.message, 'error'); }
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+// Close modal on overlay click
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+
+async function saveEdit() {
+  const id = document.getElementById('e-id').value;
+  const name = document.getElementById('e-name').value.trim();
+  const price = parseFloat(document.getElementById('e-price').value);
+  if (!name || !price) { showToast('Name and price are required', 'error'); return; }
+
+  const sizes = document.getElementById('e-sizes').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const colors = document.getElementById('e-colors').value.split(',').map(c=>c.trim()).filter(Boolean);
+
+  try {
+    await apiPut(`/api/products/${id}`, {
+      name,
+      description: document.getElementById('e-desc').value,
+      price,
+      category_id: parseInt(document.getElementById('e-cat').value),
+      image_url: document.getElementById('e-img').value.trim(),
+      back_image_url: document.getElementById('e-backimg').value.trim(),
+      sizes, colors,
+      min_quantity: parseInt(document.getElementById('e-minqty').value) || 1,
+      featured: document.getElementById('e-featured').value === '1',
+      active: document.getElementById('e-active').value === '1'
+    }, ADMIN_KEY);
+    showToast('Product saved!', 'success');
+    closeEditModal();
+    loadProducts();
+    loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Add Product ───────────────────────────────────────────────────────
+async function addProduct() {
+  const name = document.getElementById('p-name').value.trim();
+  const price = parseFloat(document.getElementById('p-price').value);
+  const cat = parseInt(document.getElementById('p-cat').value);
+  if (!name || !price || !cat) { showToast('Name, price, and category are required', 'error'); return; }
+
+  const sizes = document.getElementById('p-sizes').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const colors = document.getElementById('p-colors').value.split(',').map(c=>c.trim()).filter(Boolean);
+
+  try {
+    await apiPost('/api/products', {
+      name, price,
+      description: document.getElementById('p-desc').value,
+      category_id: cat,
+      sizes, colors,
+      min_quantity: parseInt(document.getElementById('p-minqty').value) || 1,
+      image_url: document.getElementById('p-img').value.trim(),
+      back_image_url: document.getElementById('p-backimg').value.trim(),
+      featured: document.getElementById('p-featured').value === '1'
+    }, ADMIN_KEY);
+    showToast('Product added!', 'success');
+    clearAddForm();
+    loadProducts();
+    loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+function clearAddForm() {
+  ['p-name','p-desc','p-price','p-sizes','p-colors','p-img','p-backimg'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('p-minqty').value = '1';
+  document.getElementById('p-featured').value = '0';
+  document.getElementById('p-cat').value = '';
+  ['add-front-prev','add-back-prev'].forEach(id => { document.getElementById(id).style.display='none'; });
+  ['add-front-ph','add-back-ph'].forEach(id => { document.getElementById(id).style.display='flex'; });
+}
+
+async function toggleProduct(id, field, val) {
+  try {
+    await apiPut(`/api/products/${id}`, { [field]: val }, ADMIN_KEY);
+    loadProducts();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm(`Deactivate "${name}"?\n(Product will be hidden from store)`)) return;
+  try {
+    await apiDelete(`/api/products/${id}`, ADMIN_KEY);
+    showToast('Product deactivated', 'info');
+    loadProducts(); loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Categories ────────────────────────────────────────────────────────
+async function loadCategories() {
+  try {
+    allCats = await apiGet('/api/categories', ADMIN_KEY);
+
+    document.getElementById('p-cat').innerHTML = '<option value="">Select category...</option>' +
+      allCats.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+
+    document.getElementById('categories-table').innerHTML = `<table class="dtable">
+      <thead><tr><th>ID</th><th>Icon</th><th>Name</th><th>Description</th><th>Actions</th></tr></thead>
+      <tbody>${allCats.map(c => `
+        <tr>
+          <td style="color:#aaa;font-size:0.8rem">#${c.id}</td>
+          <td style="font-size:1.6rem">${c.icon}</td>
+          <td><strong>${c.name}</strong></td>
+          <td style="color:#888;font-size:0.85rem">${c.description || '—'}</td>
+          <td><button class="btn-del" onclick="deleteCategory(${c.id},'${c.name}')">Delete</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) {}
+}
+
+async function addCategory() {
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) { showToast('Category name required', 'error'); return; }
+  try {
+    await apiPost('/api/categories', {
+      name,
+      description: document.getElementById('c-desc').value,
+      icon: document.getElementById('c-icon').value || '🛍️'
+    }, ADMIN_KEY);
+    showToast('Category added!', 'success');
+    document.getElementById('c-name').value = '';
+    document.getElementById('c-desc').value = '';
+    document.getElementById('c-icon').value = '';
+    loadCategories();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteCategory(id, name) {
+  if (!confirm(`Delete category "${name}"? Products in this category will lose their category.`)) return;
+  try {
+    await apiDelete(`/api/categories/${id}`, ADMIN_KEY);
+    showToast('Category deleted', 'info');
+    loadCategories();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Orders ────────────────────────────────────────────────────────────
+async function loadOrders(status) {
+  try {
+    const url = status ? `/api/orders?status=${status}` : '/api/orders';
+    const orders = await apiGet(url, ADMIN_KEY);
+    const div = document.getElementById('orders-table');
+    if (!orders.length) { div.innerHTML = '<p style="color:#888;padding:20px 0;">No orders found.</p>'; return; }
+
+    const statuses = ['pending','confirmed','in_production','shipped','delivered','cancelled'];
+    div.innerHTML = `<table class="dtable">
+      <thead><tr><th>#</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Design Notes</th></tr></thead>
+      <tbody>${orders.map(o => `
+        <tr>
+          <td style="color:#aaa;font-size:0.8rem">#${o.id}</td>
+          <td style="font-size:0.82rem;white-space:nowrap">${new Date(o.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+          <td><strong>${o.customer_name}</strong><br><span style="font-size:0.78rem;color:#aaa">${o.customer_email}</span></td>
+          <td style="font-size:0.85rem">${o.items.length} item${o.items.length!==1?'s':''}</td>
+          <td><strong>${formatPrice(o.total)}</strong><br><span style="font-size:0.75rem;color:#aaa">+${formatPrice(o.shipping)} ship</span></td>
+          <td>
+            <select class="status-select" onchange="updateStatus(${o.id},this.value)">
+              ${statuses.map(s=>`<option value="${s}"${o.status===s?' selected':''}>${s.replace('_',' ')}</option>`).join('')}
+            </select>
+          </td>
+          <td style="font-size:0.8rem;max-width:180px;color:#666;white-space:pre-wrap">${o.design_notes||'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) { document.getElementById('orders-table').innerHTML = '<p style="color:red;padding:20px 0;">Error loading orders.</p>'; }
+}
+
+async function updateStatus(orderId, status) {
+  try {
+    await apiPut(`/api/orders/${orderId}/status`, { status }, ADMIN_KEY);
+    showToast(`Order #${orderId} → ${status}`, 'success');
+    loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Auto-login ────────────────────────────────────────────────────────
+const saved = sessionStorage.getItem('abac_admin');
+if (saved) {
+  document.getElementById('key-input').value = saved;
+  doLogin();
+}
+</script>
+</body>
+</html>

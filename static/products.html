@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Products — ABAC One Stop Custom Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Trust Bar -->
+<div class="trust-bar">500,000+ Customers Nationwide &nbsp;|&nbsp; ★★★★★ 99.7% Satisfaction &nbsp;|&nbsp; Free Shipping on Orders $75+</div>
+
+<!-- Header -->
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <a href="/" class="logo">ABAC<span>ONE STOP CUSTOM SHOP</span></a>
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search products..." oninput="filterProducts()">
+        <button>&#128269;</button>
+      </div>
+      <div class="header-right">
+        <a href="#" class="header-link">&#128172; Live Chat<small>24/7</small></a>
+        <a href="tel:8006220000" class="header-link">&#128222; (800) ABAC-123</a>
+        <a href="#" class="header-link">&#128100; My Account</a>
+        <a href="/cart.html" class="cart-btn">&#128722; <span class="cart-count">0</span></a>
+      </div>
+    </div>
+  </div>
+  <nav class="mega-nav">
+    <div class="container">
+      <div class="mega-nav-inner">
+        <ul class="mega-nav-links">
+          <li><a href="/products.html?cat=t-shirts">T-Shirts</a></li>
+          <li><a href="/products.html?cat=hoodies">Hoodies</a></li>
+          <li><a href="/products.html?cat=hats">Hats</a></li>
+          <li><a href="/products.html?cat=polos">Polo Shirts</a></li>
+          <li><a href="/products.html?cat=jackets">Jackets</a></li>
+          <li><a href="/products.html?cat=bags">Bags</a></li>
+          <li><a href="/products.html?cat=activewear">Activewear</a></li>
+          <li><a href="/products.html?cat=drinkware">Drinkware</a></li>
+          <li><a href="/products.html?cat=promo">Promo Products</a></li>
+          <li><a href="/products.html" class="active">Best Sellers</a></li>
+        </ul>
+        <ul class="mega-nav-links"><li><a href="/products.html" class="design-now-btn">Design Now</a></li></ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Delivery Bar -->
+<div class="delivery-bar">
+  🚚 <strong>Free Delivery:</strong> <span class="free-delivery-date">Loading...</span>
+  &nbsp;|&nbsp; ⚡ <strong>Rush Delivery:</strong> <span class="rush-delivery-date">Loading...</span>
+  &nbsp;|&nbsp; Need it sooner? <a href="tel:8006220000">Call (800) ABAC-123</a>
+</div>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Home</a> / <span id="page-title-bc">All Products</span></nav>
+    <h1 id="page-heading">Custom Apparel &amp; Products</h1>
+    <p id="page-subhead">Design and print for your group, business, or event — no minimums</p>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="container" style="padding:40px 15px;">
+  <div class="products-layout">
+
+    <!-- Sidebar Filters -->
+    <aside class="products-sidebar">
+
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter(this)">Shop By Category <span>▼</span></div>
+        <ul class="filter-list">
+          <li><label><input type="radio" name="cat" value="all" checked onchange="applyFilters()"> All Products</label></li>
+          <li><label><input type="radio" name="cat" value="Apparel" onchange="applyFilters()"> Apparel</label></li>
+          <li><label><input type="radio" name="cat" value="Accessories" onchange="applyFilters()"> Accessories</label></li>
+          <li><label><input type="radio" name="cat" value="Drinkware" onchange="applyFilters()"> Drinkware</label></li>
+          <li><label><input type="radio" name="cat" value="Sports" onchange="applyFilters()"> Sports &amp; Teams</label></li>
+          <li><label><input type="radio" name="cat" value="Print" onchange="applyFilters()"> Print &amp; Signage</label></li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter(this)">Shop By Style <span>▼</span></div>
+        <ul class="filter-list">
+          <li><label><input type="checkbox"> Short Sleeve T-Shirts</label></li>
+          <li><label><input type="checkbox"> Long Sleeve Shirts</label></li>
+          <li><label><input type="checkbox"> Hoodies &amp; Sweatshirts</label></li>
+          <li><label><input type="checkbox"> Polo Shirts</label></li>
+          <li><label><input type="checkbox"> Hats &amp; Caps</label></li>
+          <li><label><input type="checkbox"> Jackets &amp; Outerwear</label></li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter(this)">Popular Brands <span>▼</span></div>
+        <ul class="filter-list">
+          <li><label><input type="checkbox"> Gildan</label></li>
+          <li><label><input type="checkbox"> Bella + Canvas</label></li>
+          <li><label><input type="checkbox"> Hanes</label></li>
+          <li><label><input type="checkbox"> Nike</label></li>
+          <li><label><input type="checkbox"> Comfort Colors</label></li>
+          <li><label><input type="checkbox"> Next Level</label></li>
+          <li><label><input type="checkbox"> Carhartt</label></li>
+          <li><label><input type="checkbox"> Under Armour</label></li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter(this)">Shop By Fit <span>▼</span></div>
+        <ul class="filter-list">
+          <li><label><input type="checkbox"> Unisex</label></li>
+          <li><label><input type="checkbox"> Women's</label></li>
+          <li><label><input type="checkbox"> Youth</label></li>
+          <li><label><input type="checkbox"> Tall</label></li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter(this)">Price Range <span>▼</span></div>
+        <div style="padding:12px 0;">
+          <input type="range" id="price-range" min="0" max="100" value="100" style="width:100%;accent-color:#cc0000;" oninput="document.getElementById('price-val').textContent='$0 – $'+this.value; applyFilters()">
+          <div id="price-val" style="font-size:0.85rem;color:#666;margin-top:6px;">$0 – $100</div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Product Grid Area -->
+    <div class="products-main">
+      <div class="sort-bar">
+        <span id="result-count" style="color:#666;font-size:0.9rem;"></span>
+        <div class="sort-controls">
+          <label style="font-size:0.88rem;color:#666;">Sort by:</label>
+          <select id="sort-select" onchange="applyFilters()" class="sort-select">
+            <option value="popular">Most Popular</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="product-grid" id="products-grid">
+        <div class="loading">Loading products...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col"><h4>Apparel</h4><ul>
+        <li><a href="/products.html?cat=t-shirts">T-Shirts</a></li>
+        <li><a href="/products.html?cat=hoodies">Hoodies</a></li>
+        <li><a href="/products.html?cat=hats">Hats</a></li>
+        <li><a href="/products.html?cat=polos">Polo Shirts</a></li>
+        <li><a href="/products.html?cat=jackets">Jackets</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Promo Products</h4><ul>
+        <li><a href="/products.html">No Minimums</a></li>
+        <li><a href="/products.html?cat=bags">Bags &amp; Totes</a></li>
+        <li><a href="/products.html?cat=drinkware">Drinkware</a></li>
+        <li><a href="/products.html?cat=office">Office Supplies</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>About</h4><ul>
+        <li><a href="#">Our Story</a></li><li><a href="#">Reviews</a></li>
+        <li><a href="#">Blog</a></li><li><a href="#">Careers</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Help</h4><ul>
+        <li><a href="#">Contact Us</a></li><li><a href="#">Track My Order</a></li>
+        <li><a href="#">FAQs</a></li><li><a href="/admin.html">Admin</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>(800) ABAC-123 &nbsp;|&nbsp; support@abacshop.com</span>
+      <span>© 2026 ABAC One Stop Custom Shop. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+const BADGES=['Top Seller','Staff Favorite','Top Seller','New Arrival','Staff Favorite','Best Value','Top Seller','Staff Favorite'];
+const BADGE_CLS=['','staff-badge','','new-badge','staff-badge','value-badge','','staff-badge'];
+const REVIEW_COUNTS=[3213,573,423,189,1042,756,298,512,881,344,1560,230];
+const SIZE_RANGES=['S–5XL','XS–3XL','XS–3XL','S–4XL','S–2XL','One Size','XS–3XL','S–XL','S–3XL','One Size','S–2XL','XS–4XL'];
+const COLOR_COUNTS=[71,34,61,48,25,12,38,20,55,8,44,30];
+
+let allProducts=[];
+
+function toggleFilter(el){
+  const list=el.nextElementSibling;
+  list.style.display=list.style.display==='none'?'':'none';
+  el.querySelector('span').textContent=list.style.display==='none'?'▶':'▼';
+}
+
+async function loadProducts(){
+  try{ allProducts=await apiGet('/api/products'); }
+  catch(e){ document.getElementById('products-grid').innerHTML='<p style="color:#c00;grid-column:1/-1;padding:40px;text-align:center;">Failed to load products.</p>'; return; }
+  const urlCat=new URLSearchParams(location.search).get('cat')||'';
+  if(urlCat){
+    const radio=[...document.querySelectorAll('input[name=cat]')].find(r=>r.value.toLowerCase().includes(urlCat.replace('-','').toLowerCase()));
+    if(radio){ radio.checked=true; }
+    document.getElementById('page-heading').textContent='Custom '+urlCat.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  }
+  applyFilters();
+}
+
+function filterProducts(){ applyFilters(); }
+
+function applyFilters(){
+  const cat=document.querySelector('input[name=cat]:checked')?.value||'all';
+  const search=(document.getElementById('search-input')?.value||'').toLowerCase();
+  const maxPrice=parseFloat(document.getElementById('price-range')?.value||100);
+  const sort=document.getElementById('sort-select')?.value||'popular';
+
+  let products=allProducts.filter(p=>{
+    const catName=(p.category_name||p.category||'').toLowerCase();
+    const catMatch=cat==='all'||catName.includes(cat.toLowerCase());
+    const searchMatch=!search||p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search);
+    const priceMatch=p.price<=maxPrice;
+    return catMatch&&searchMatch&&priceMatch;
+  });
+
+  if(sort==='price-asc') products.sort((a,b)=>a.price-b.price);
+  else if(sort==='price-desc') products.sort((a,b)=>b.price-a.price);
+  else if(sort==='name') products.sort((a,b)=>a.name.localeCompare(b.name));
+
+  document.getElementById('result-count').textContent=`${products.length} product${products.length!==1?'s':''} found`;
+  renderProducts(products);
+}
+
+function renderProducts(products){
+  const grid=document.getElementById('products-grid');
+  if(!products.length){ grid.innerHTML='<p style="color:#888;text-align:center;padding:60px 0;grid-column:1/-1;">No products match your filters.</p>'; return; }
+  grid.innerHTML=products.map((p,i)=>{
+    const frontUrl=p.image_url||'https://via.placeholder.com/400x300/1a1a1a/cc0000?text=Custom';
+    const backUrl=p.back_image_url||frontUrl;
+    return `
+    <div class="product-card">
+      <a href="/customize.html?product_id=${p.id}" style="display:block;position:relative;overflow:hidden;"
+         onmouseenter="flipImg(this,'${backUrl}')" onmouseleave="flipImg(this,'${frontUrl}')">
+        <img src="${frontUrl}" alt="${p.name}" class="product-img" loading="lazy" style="transition:opacity 0.25s;">
+        <span class="product-badge ${BADGE_CLS[i%8]}">${BADGES[i%8]}</span>
+      </a>
+      <div class="product-info">
+        <h3 class="product-name"><a href="/customize.html?product_id=${p.id}" style="color:inherit;">${p.name}</a></h3>
+        <div class="color-count">+${COLOR_COUNTS[i%12]} colors</div>
+        <div class="stars">★★★★★ <span class="rating-count">${REVIEW_COUNTS[i%12].toLocaleString()} reviews</span></div>
+        <div class="size-range">${SIZE_RANGES[i%12]}</div>
+        <div class="no-min-badge">No Minimum</div>
+        <div class="product-price"><strong>${formatPrice(p.price)}</strong> <span class="price-note">each for 50 items</span></div>
+        <div class="product-actions">
+          <a href="/customize.html?product_id=${p.id}" class="btn btn-primary btn-sm" style="flex:1;">Customize</a>
+          <button class="btn btn-outline btn-sm" onclick="Cart.add({id:${p.id},name:'${p.name.replace(/'/g,"\\'")}',price:${p.price}})">+ Cart</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function flipImg(linkEl, newSrc) {
+  const img = linkEl.querySelector('.product-img');
+  if (img) img.src = newSrc;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{ updateDeliveryDates(); loadProducts(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customize — ABAC One Stop Custom Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.customizer { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.mockup-wrap { position: sticky; top: 80px; }
+.mockup-container { position: relative; border-radius: 12px; overflow: hidden; background: #111; height: 480px; }
+.mockup-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mockup-overlay { position: absolute; inset: 0; opacity: 0; mix-blend-mode: multiply; transition: background 0.3s, opacity 0.3s; pointer-events: none; }
+.mockup-views { display: flex; gap: 10px; margin-top: 12px; }
+.view-btn { flex: 1; padding: 10px; border: 2px solid var(--border); background: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: var(--transition); }
+.view-btn.active { border-color: var(--red); color: var(--red); }
+.customizer-panel { background: white; border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+.customizer-panel h1 { font-size: 1.6rem; font-weight: 900; margin-bottom: 5px; }
+.product-cat-label { color: var(--red); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+.unit-price { font-size: 2rem; font-weight: 900; color: var(--red); margin-bottom: 20px; }
+.ctrl-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-bottom: 10px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.swatch { width: 34px; height: 34px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: 2px solid rgba(0,0,0,0.15); }
+.swatch:hover { transform: scale(1.15); }
+.swatch.selected { border-color: var(--red); transform: scale(1.15); outline: 2px solid var(--red); }
+.size-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.size-btn { padding: 10px 16px; border: 2px solid var(--border); background: white; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: var(--transition); }
+.size-btn:hover { border-color: var(--red); color: var(--red); }
+.size-btn.selected { background: var(--red); color: white; border-color: var(--red); }
+.qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.qty-row .qty-btn { width: 38px; height: 38px; border: 2px solid var(--border); background: white; border-radius: 6px; cursor: pointer; font-size: 1.2rem; font-weight: 700; transition: var(--transition); }
+.qty-row .qty-btn:hover { background: var(--red); color: white; border-color: var(--red); }
+.qty-row input { width: 70px; text-align: center; padding: 8px; border: 2px solid var(--border); border-radius: 6px; font-size: 1.1rem; font-weight: 700; }
+.discount-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 20px; border-radius: 8px; overflow: hidden; }
+.discount-table th { background: var(--black); color: white; padding: 8px 12px; text-align: left; }
+.discount-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.discount-table tr.active-tier td { background: #fff3f3; font-weight: 700; color: var(--red); }
+.discount-badge { background: var(--red); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+.design-section { margin-bottom: 20px; }
+.design-section textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 0.9rem; resize: vertical; min-height: 90px; font-family: inherit; }
+.design-section textarea:focus { border-color: var(--red); outline: none; }
+.upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: var(--transition); }
+.upload-area:hover { border-color: var(--red); background: #fff5f5; }
+.upload-area input { display: none; }
+.upload-area .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+.upload-area p { color: #888; font-size: 0.85rem; }
+.upload-area .filename { color: var(--red); font-weight: 600; margin-top: 6px; font-size: 0.85rem; }
+.total-display { background: #0a0a0a; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px; }
+.total-display .total-label { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
+.total-display .total-amount { font-size: 2.2rem; font-weight: 900; color: var(--red); }
+.total-display .total-sub { color: #666; font-size: 0.82rem; margin-top: 4px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+@media (max-width: 900px) {
+  .customizer { grid-template-columns: 1fr; }
+  .mockup-wrap { position: static; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav class="navbar">
+      <a href="/" class="logo">ABAC<span>One Stop Custom Shop</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/products.html">Products</a></li>
+        <li><a href="/cart.html">Cart</a></li>
+        <li><a href="/admin.html">Admin</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="/cart.html" class="cart-btn">🛒 <span class="cart-count">0</span></a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <h1 id="page-title">Customize Your Product</h1>
+    <p><a href="/products.html" style="color:#888">← Back to Products</a></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div id="loading" class="loading">Loading product...</div>
+    <div id="customizer-root" class="customizer" style="display:none">
+
+      <!-- Left: Mockup -->
+      <div class="mockup-wrap">
+        <div class="mockup-container">
+          <img id="mockup-img" class="mockup-img" src="" alt="Product mockup">
+          <div id="color-overlay" class="mockup-overlay"></div>
+        </div>
+        <div class="mockup-views">
+          <button class="view-btn active" onclick="setView('front', this)">Front View</button>
+          <button class="view-btn" onclick="setView('back', this)">Back View</button>
+        </div>
+        <!-- Bulk pricing summary -->
+        <div style="margin-top:20px; background:white; border-radius:10px; padding:20px; box-shadow:var(--shadow);">
+          <div class="ctrl-label">Bulk Pricing</div>
+          <table class="discount-table" id="discount-table">
+            <thead><tr><th>Quantity</th><th>Per Unit</th><th>Savings</th></tr></thead>
+            <tbody id="discount-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Controls -->
+      <div class="customizer-panel">
+        <div id="product-cat-label" class="product-cat-label"></div>
+        <h1 id="product-name">—</h1>
+        <p id="product-desc" style="color:#888; font-size:0.9rem; margin-bottom:15px;"></p>
+        <div class="unit-price" id="unit-price-display">$0.00 <span style="font-size:0.9rem; color:#888; font-weight:400;">per unit</span></div>
+
+        <!-- Colors -->
+        <div id="colors-section">
+          <div class="ctrl-label">Color</div>
+          <div class="swatches" id="swatches-row"></div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Sizes -->
+        <div id="sizes-section">
+          <div class="ctrl-label">Size</div>
+          <div class="size-grid" id="size-grid"></div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Quantity -->
+        <div class="ctrl-label">Quantity</div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input type="number" id="qty-input" value="1" min="1" max="9999" onchange="updatePrice()">
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+          <span id="discount-label" style="font-size:0.85rem; color:var(--red); font-weight:700;"></span>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Design Notes -->
+        <div class="design-section">
+          <div class="ctrl-label">Design Notes</div>
+          <textarea id="design-notes" placeholder="Describe your design: text to include, colors, logo placement, font style, number/name for jerseys, etc. The more detail the better!"></textarea>
+        </div>
+
+        <!-- Upload -->
+        <div class="upload-area" onclick="document.getElementById('art-file').click()">
+          <div class="upload-icon">🎨</div>
+          <p>Click to upload your artwork file</p>
+          <p style="font-size:0.75rem; color:#aaa;">PNG, JPG, SVG, PDF, AI, EPS accepted</p>
+          <div class="filename" id="file-name"></div>
+          <input type="file" id="art-file" accept=".png,.jpg,.jpeg,.svg,.pdf,.ai,.eps" onchange="showFilename(this)">
+        </div>
+
+        <!-- Total -->
+        <div class="total-display">
+          <div class="total-label">Order Total</div>
+          <div class="total-amount" id="total-display">$0.00</div>
+          <div class="total-sub" id="total-sub">1 unit × $0.00</div>
+        </div>
+
+        <!-- Add to Cart -->
+        <button class="btn btn-primary" style="width:100%; font-size:1.1rem; padding:16px;" onclick="addToCart()">
+          Add to Cart
+        </button>
+        <a href="/cart.html" style="display:block; text-align:center; margin-top:10px; color:#888; font-size:0.85rem;">View Cart →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <p>&copy; 2024 <span style="color:var(--red)">ABAC One Stop Custom Shop</span>. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+let product = null;
+let selectedColor = '';
+let selectedSize = '';
+let basePrice = 0;
+
+const TIERS = [
+  { min: 1,  max: 11,  label: '1 – 11',  discount: 0 },
+  { min: 12, max: 23,  label: '12 – 23', discount: 0.10 },
+  { min: 24, max: 47,  label: '24 – 47', discount: 0.15 },
+  { min: 48, max: Infinity, label: '48+', discount: 0.20 },
+];
+
+const CSS_COLORS = {
+  'Black': '#1a1a1a', 'White': '#f0f0f0', 'Red': '#cc0000',
+  'Navy': '#001f5b', 'Gray': '#888888', 'Royal Blue': '#4169e1',
+  'Natural': '#d4c5a9', 'Silver': '#c0c0c0',
+};
+
+function getDiscount(qty) {
+  return TIERS.find(t => qty >= t.min && qty <= t.max) || TIERS[0];
+}
+
+function getUnitPrice(qty) {
+  const tier = getDiscount(qty);
+  return basePrice * (1 - tier.discount);
+}
+
+function updatePrice() {
+  const qty = parseInt(document.getElementById('qty-input').value) || 1;
+  const tier = getDiscount(qty);
+  const unitPrice = basePrice * (1 - tier.discount);
+  const total = unitPrice * qty;
+
+  document.getElementById('unit-price-display').innerHTML =
+    `${formatPrice(unitPrice)} <span style="font-size:0.9rem; color:#888; font-weight:400;">per unit</span>` +
+    (tier.discount > 0 ? ` <span style="background:var(--red);color:white;font-size:0.7rem;padding:2px 8px;border-radius:10px;font-weight:700;">${tier.discount*100}% OFF</span>` : '');
+
+  document.getElementById('total-display').textContent = formatPrice(total);
+  document.getElementById('total-sub').textContent = `${qty} unit${qty !== 1 ? 's' : ''} × ${formatPrice(unitPrice)}`;
+  document.getElementById('discount-label').textContent = tier.discount > 0 ? `${tier.discount*100}% bulk discount!` : '';
+
+  // Highlight active tier row
+  document.querySelectorAll('#discount-body tr').forEach((row, i) => {
+    row.classList.toggle('active-tier', TIERS[i].min <= qty && qty <= TIERS[i].max);
+  });
+}
+
+function changeQty(delta) {
+  const input = document.getElementById('qty-input');
+  const val = Math.max(1, (parseInt(input.value) || 1) + delta);
+  input.value = val;
+  updatePrice();
+}
+
+function setView(view, btn) {
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const img = document.getElementById('mockup-img');
+  if (view === 'back' && product && product.back_image_url) {
+    img.src = product.back_image_url;
+    img.style.filter = '';
+  } else if (view === 'back') {
+    img.style.filter = 'brightness(0.85)';
+  } else {
+    img.src = product ? (product.image_url || '') : '';
+    img.style.filter = '';
+  }
+}
+
+function selectColor(color, btn) {
+  selectedColor = color;
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+  btn.classList.add('selected');
+  const cssColor = CSS_COLORS[color] || color.toLowerCase();
+  const overlay = document.getElementById('color-overlay');
+  overlay.style.backgroundColor = cssColor;
+  overlay.style.opacity = '0.4';
+}
+
+function selectSize(size, btn) {
+  selectedSize = size;
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function showFilename(input) {
+  const name = input.files[0]?.name || '';
+  document.getElementById('file-name').textContent = name ? `✓ ${name}` : '';
+}
+
+function buildDiscountTable() {
+  document.getElementById('discount-body').innerHTML = TIERS.map(t => `
+    <tr>
+      <td>${t.label} units</td>
+      <td>${formatPrice(basePrice * (1 - t.discount))}</td>
+      <td>${t.discount > 0 ? `<span class="discount-badge">${t.discount*100}% off</span>` : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function addToCart() {
+  if (!product) return;
+  const qty = parseInt(document.getElementById('qty-input').value) || 1;
+  const unitPrice = getUnitPrice(qty);
+  const notes = document.getElementById('design-notes').value.trim();
+
+  if (!selectedSize && product.sizes.length > 0) {
+    showToast('Please select a size', 'error'); return;
+  }
+
+  Cart.add({ id: product.id, name: product.name, price: unitPrice }, selectedSize, selectedColor, qty);
+  setTimeout(() => { window.location.href = '/cart.html'; }, 1200);
+}
+
+async function loadProduct() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('product_id');
+  if (!id) { document.getElementById('loading').innerHTML = '<p>No product selected. <a href="/products.html">Browse products</a></p>'; return; }
+
+  try {
+    product = await apiGet(`/api/products/${id}`);
+    basePrice = product.price;
+
+    document.getElementById('page-title').textContent = `Customize: ${product.name}`;
+    document.getElementById('product-name').textContent = product.name;
+    document.getElementById('product-desc').textContent = product.description;
+    document.getElementById('product-cat-label').textContent = `${product.category_icon || ''} ${product.category_name || ''}`;
+    document.getElementById('mockup-img').src = product.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f0d5d894?w=600';
+    document.getElementById('mockup-img').alt = product.name;
+
+    // Colors
+    const colors = product.colors || [];
+    if (colors.length) {
+      document.getElementById('swatches-row').innerHTML = colors.map(c => {
+        const css = CSS_COLORS[c] || c.toLowerCase();
+        return `<button class="swatch" style="background:${css}" title="${c}" onclick="selectColor('${c}', this)"></button>`;
+      }).join('');
+    } else {
+      document.getElementById('colors-section').style.display = 'none';
+    }
+
+    // Sizes
+    const sizes = product.sizes || [];
+    if (sizes.length) {
+      document.getElementById('size-grid').innerHTML = sizes.map(s =>
+        `<button class="size-btn" onclick="selectSize('${s}', this)">${s}</button>`
+      ).join('');
+    } else {
+      document.getElementById('sizes-section').style.display = 'none';
+    }
+
+    buildDiscountTable();
+    updatePrice();
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('customizer-root').style.display = 'grid';
+
+  } catch(e) {
+    document.getElementById('loading').innerHTML = `<p style="color:red">Error loading product: ${e.message}. <a href="/products.html">Browse products</a></p>`;
+  }
+}
+
+loadProduct();
+</script>
+</body>
+</html>

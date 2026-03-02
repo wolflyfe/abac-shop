@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart — ABAC One Stop Custom Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav class="navbar">
+      <a href="/" class="logo">ABAC<span>One Stop Custom Shop</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/products.html">Products</a></li>
+        <li><a href="/cart.html" class="active">Cart</a></li>
+        <li><a href="/admin.html">Admin</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="/cart.html" class="cart-btn">🛒 <span class="cart-count">0</span></a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Your Cart</h1>
+    <p>Review your items and place your order</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" id="cart-container">
+    <div class="loading">Loading cart...</div>
+  </div>
+</section>
+
+<div id="success-banner" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:9999; display:none; align-items:center; justify-content:center;">
+  <div style="background:white; border-radius:12px; padding:50px; text-align:center; max-width:480px; margin:20px;">
+    <div style="font-size:3rem; margin-bottom:15px;">✅</div>
+    <h2 style="color:#0a0a0a; margin-bottom:10px;">Order Placed!</h2>
+    <p style="color:#888; margin-bottom:8px;">Order ID: <strong id="order-id-display" style="color:#cc0000"></strong></p>
+    <p style="color:#888; margin-bottom:25px;">We'll contact you within 24 hours to finalize your design and confirm details.</p>
+    <a href="/products.html" class="btn btn-primary">Keep Shopping</a>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <p>&copy; 2024 <span style="color:var(--red)">ABAC One Stop Custom Shop</span>. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+const FREE_SHIPPING = 75;
+const SHIPPING_RATE = 9.99;
+
+function render() {
+  const items = Cart.getItems();
+  const container = document.getElementById('cart-container');
+
+  if (!items.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🛒</div>
+        <h3>Your cart is empty</h3>
+        <p style="margin:10px 0 25px">Add some products to get started!</p>
+        <a href="/products.html" class="btn btn-primary">Browse Products</a>
+      </div>`;
+    return;
+  }
+
+  const subtotal = Cart.getTotal();
+  const shipping = subtotal >= FREE_SHIPPING ? 0 : SHIPPING_RATE;
+  const total = subtotal + shipping;
+
+  container.innerHTML = `
+    <div class="cart-layout">
+      <div>
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Options</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(item => `
+              <tr>
+                <td><strong>${item.product_name}</strong></td>
+                <td style="color:#888; font-size:0.85rem">${[item.size, item.color].filter(Boolean).join(' / ') || '—'}</td>
+                <td>${formatPrice(item.price)}</td>
+                <td>
+                  <div class="qty-controls">
+                    <button class="qty-btn" onclick="changeQty('${item.key}', ${item.qty - 1})">−</button>
+                    <span>${item.qty}</span>
+                    <button class="qty-btn" onclick="changeQty('${item.key}', ${item.qty + 1})">+</button>
+                  </div>
+                </td>
+                <td><strong>${formatPrice(item.price * item.qty)}</strong></td>
+                <td><button class="btn btn-danger btn-sm" onclick="removeItem('${item.key}')">✕</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="checkout-form">
+          <h3>Order Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" id="f-name" placeholder="John Smith" required>
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="f-email" placeholder="john@email.com" required>
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="f-phone" placeholder="(555) 123-4567">
+            </div>
+            <div class="form-group">
+              <label>Delivery Address</label>
+              <input type="text" id="f-address" placeholder="123 Main St, City, State ZIP">
+            </div>
+            <div class="form-group full">
+              <label>Design Notes *</label>
+              <textarea id="f-design" placeholder="Describe your design: text, colors, logo placement, file upload instructions, etc. The more detail the better!"></textarea>
+            </div>
+            <div class="form-group full">
+              <label>Additional Notes</label>
+              <textarea id="f-notes" placeholder="Any special requests, rush order info, etc." style="min-height:60px;"></textarea>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%; margin-top:20px; font-size:1.05rem; padding:15px;" onclick="placeOrder()">
+            Place Order — ${formatPrice(total)}
+          </button>
+        </div>
+      </div>
+
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        ${items.map(i => `
+          <div class="summary-row">
+            <span>${i.product_name} ×${i.qty}</span>
+            <span>${formatPrice(i.price * i.qty)}</span>
+          </div>
+        `).join('')}
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>${formatPrice(subtotal)}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>${shipping === 0 ? '<span style="color:green">FREE</span>' : formatPrice(shipping)}</span>
+        </div>
+        ${subtotal < FREE_SHIPPING ? `<p style="font-size:0.8rem;color:#888;margin-bottom:10px;">Add ${formatPrice(FREE_SHIPPING - subtotal)} more for free shipping!</p>` : ''}
+        <div class="summary-row total">
+          <span>Total</span>
+          <span style="color:var(--red)">${formatPrice(total)}</span>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="placeOrder()">Place Order</button>
+        <a href="/products.html" style="display:block; text-align:center; margin-top:12px; color:#888; font-size:0.85rem;">← Continue Shopping</a>
+      </div>
+    </div>`;
+}
+
+function changeQty(key, qty) {
+  if (qty <= 0) { Cart.remove(key); } else { Cart.updateQty(key, qty); }
+  render();
+}
+
+function removeItem(key) {
+  Cart.remove(key);
+  render();
+}
+
+async function placeOrder() {
+  const name = document.getElementById('f-name')?.value.trim();
+  const email = document.getElementById('f-email')?.value.trim();
+  const design = document.getElementById('f-design')?.value.trim();
+
+  if (!name || !email || !design) { showToast('Please fill in Name, Email, and Design Notes', 'error'); return; }
+
+  const items = Cart.getItems();
+  const payload = {
+    customer_name: name,
+    customer_email: email,
+    customer_phone: document.getElementById('f-phone')?.value || '',
+    customer_address: document.getElementById('f-address')?.value || '',
+    design_notes: design,
+    notes: document.getElementById('f-notes')?.value || '',
+    items: items.map(i => ({
+      product_id: i.product_id,
+      product_name: i.product_name,
+      price: i.price,
+      quantity: i.qty,
+      size: i.size || '',
+      color: i.color || ''
+    }))
+  };
+
+  try {
+    const result = await apiPost('/api/orders', payload);
+    Cart.clear();
+    document.getElementById('order-id-display').textContent = '#' + result.order_id;
+    const banner = document.getElementById('success-banner');
+    banner.style.display = 'flex';
+  } catch(e) {
+    showToast('Order failed: ' + e.message, 'error');
+  }
+}
+
+render();
+</script>
+</body>
+</html>
