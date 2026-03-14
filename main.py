@@ -1,6 +1,6 @@
 """ABAC One Stop Custom Shop — FastAPI Backend"""
 
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -13,6 +13,7 @@ from models import (
     OrderCreate, OrderStatusUpdate
 )
 from database import init_db, get_db
+from mockup_processor import process_product
 
 ADMIN_KEY = "BerNard33"   # Change this to a strong secret
 STATIC_DIR = Path(__file__).parent / "static"
@@ -137,7 +138,7 @@ async def get_product(product_id: int, db=Depends(get_db)):
 
 
 @app.post("/api/products")
-async def create_product(product: ProductCreate, db=Depends(get_db), _=Depends(require_admin)):
+async def create_product(product: ProductCreate, bg: BackgroundTasks, db=Depends(get_db), _=Depends(require_admin)):
     cur = db.execute("""
         INSERT INTO products
             (name, description, price, category_id, image_url, back_image_url, sizes, colors, min_quantity, featured, active)
@@ -149,11 +150,13 @@ async def create_product(product: ProductCreate, db=Depends(get_db), _=Depends(r
         product.min_quantity, 1 if product.featured else 0
     ))
     db.commit()
-    return {"id": cur.lastrowid, "message": "Product created"}
+    new_id = cur.lastrowid
+    bg.add_task(process_product, new_id)
+    return {"id": new_id, "message": "Product created — mockup processing started"}
 
 
 @app.put("/api/products/{product_id}")
-async def update_product(product_id: int, product: ProductUpdate, db=Depends(get_db), _=Depends(require_admin)):
+async def update_product(product_id: int, product: ProductUpdate, bg: BackgroundTasks, db=Depends(get_db), _=Depends(require_admin)):
     updates = {}
     if product.name is not None:           updates["name"] = product.name
     if product.description is not None:    updates["description"] = product.description
@@ -173,6 +176,10 @@ async def update_product(product_id: int, product: ProductUpdate, db=Depends(get
     set_clause = ", ".join(f"{k} = ?" for k in updates)
     db.execute(f"UPDATE products SET {set_clause} WHERE id = ?", [*updates.values(), product_id])
     db.commit()
+    # Re-process mockups if image URLs changed
+    if "image_url" in updates or "back_image_url" in updates:
+        bg.add_task(process_product, product_id)
+        return {"message": "Product updated — mockup processing started"}
     return {"message": "Product updated"}
 
 
